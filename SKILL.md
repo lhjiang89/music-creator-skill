@@ -1,11 +1,11 @@
 ---
 name: music-creator
-description: "Guide the user step by step to write song lyrics, then build Suno Styles prompts from each section's emotion, scene, texture, and vocal tone. Use when the user wants to write a song, generate or revise lyrics, create or condense Suno style prompts, fix flat or rushed vocals, or generate and iterate music takes."
+description: "Guide the user step by step to write song lyrics, then build Suno Styles prompts from each section's emotion, scene, texture, and vocal tone. After the user confirms, check whether this agent has computer-use or browser-control tools: if not, give paste-ready lyrics and styles for the user to submit on Suno; if yes, ask before automating creation on Suno. Use when the user wants to write a song, generate or revise lyrics, create or condense Suno style prompts, fix flat or rushed vocals, or generate and iterate music takes."
 ---
 
 # Music Creator
 
-一步步带用户完成两件核心事：**写出可唱的歌词**，再**根据歌词内容生成 Suno 风格区（Styles）提示词**。歌词和 Styles 都经用户确认后，才进入生成和迭代。
+一步步带用户完成两件核心事：**写出可唱的歌词**，再**根据歌词内容生成 Suno 风格区（Styles）提示词**。歌词和 Styles 都经用户确认后，才进入生成和迭代。生成前必须先检查有没有 Computer Use 权限：没有就请用户自己操作；有的话先询问，得到同意再代为在 Suno 上创作。
 
 不要一上来就出成品歌，也不要把试错过的长提示词堆回去。用户明确说「直接生成」时，才可以跳步。
 
@@ -153,11 +153,49 @@ Suno Lyrics 上限约 5000 字符，含标签通常足够。
 - Lyrics：带标签的完整歌词
 - Styles：完整风格提示，只此一份，不超过 1000 字符
 
-明确问用户：是再改词或改风格，还是可以去生成。没得到确认前不要生成。
+明确问用户：是再改词或改风格，还是可以进入生成。没得到「可以生成」的确认前，不要去 Suno 创作，也不要启动浏览器自动化。
 
-## 步骤 8. 在 Suno 里生成
+## 步骤 8. 检查能力，再决定怎么在 Suno 里生成
 
-打开 [Suno Create](https://suno.com/create)，用 **Custom / Advanced**。不要用一句简单描述直接出歌，除非用户只要草稿。
+用户确认可以生成后，先检查**当前这次会话里**，这个代理是否真的有 Computer Use / 浏览器或桌面控制能力，再决定下一步。不要假设自己有这个能力。
+
+### 8.1 先检查有没有 Computer Use 权限
+
+视为「有权限」的情况：当前会话的工具列表里，有可以实际点击、输入、滚动网页或操作系统界面的能力，例如 Computer Use、browser use、控制浏览器的桌面代理，或文档中明确的浏览器操作工具。
+
+以下情况都视为「没有权限」，不要尝试代为登录或点生成：
+
+- 只有网页搜索、抓取页面文本、打开链接，而不能点击和输入
+- 工具列表里没有浏览器或桌面控制工具
+- 不确定能不能操作网页
+
+不要为了「试试」去调用不存在的工具，也不要声称自己马上会登录 Suno。
+
+### 8.2 没有权限：让用户自己操作
+
+把步骤 7 的可粘贴成品再交给用户，并附上 [Suno 创作页](https://suno.com/create)，请用户自己登录并粘贴。简要说明操作顺序即可：
+
+1. 打开 Custom / Advanced
+2. 把 Lyrics 全部贴进歌词栏
+3. 把 Styles 全部贴进风格栏（不要贴进歌词）
+4. 填写标题、人声、时长（未指定则 Auto）
+5. 选择当前套餐下最好的正式模型，不要用 Mini
+6. 确认不是 Cover / Remix（除非步骤 9 决定用 Cover）
+7. 核对后点一次 Create，等两首完整歌曲生成
+
+然后停在这里，等用户反馈试听结果。
+
+### 8.3 有权限：先问用户，再决定要不要代为创作
+
+即使有 Computer Use 权限，也**不要自动开始**。先问一句，例如：
+
+> 我可以在浏览器里打开 Suno，按刚才确认的歌词和 Styles 直接帮你创作。要我代为操作吗？也可以把文本拿去你自己粘贴。
+
+只有用户明确说「要」「请你生成」「帮我在 Suno 上做」时，才进入 8.4。用户说「我自己来」、只想要文本、或没有回答，就按 8.2 处理，把可粘贴内容留下即可。
+
+### 8.4 用户同意后，用 Computer Use 在 Suno 上创作
+
+打开 [Suno Create](https://suno.com/create)，用 **Custom / Advanced**。不要用一句简单描述直接出歌，除非用户只要草稿。更细的操作注意见 `references/suno-computer-use.md`。
 
 生成前核对：
 
@@ -166,7 +204,9 @@ Suno Lyrics 上限约 5000 字符，含标签通常足够。
 - 标题、人声、Duration 已填
 - 用当前套餐下最好的正式模型，不用 Mini，也不要把未付费的 1 分钟预览当成成品
 - 当前是空白 Custom，没有挂上旧曲或参考音频，也不是 Cover / Remix（除非步骤 9 决定用 Cover）
-- 全部核对后再点一次 Create，一次出两首完整歌曲，让用户选 A 或 B
+- 如果页面需要登录，停下来请用户在这个浏览器里登录或完成验证，不要擅自使用或猜测密码，也不要绕过登录
+- 未经用户明确要求，不要开通、升级、付费或打开自动充值
+- 全部核对后再点一次 Create，一次出两首完整歌曲，把链接和音频交给用户选 A 或 B
 
 ### 什么时候用 Cover，什么时候重新生成
 
